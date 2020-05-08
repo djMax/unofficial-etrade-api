@@ -1,10 +1,11 @@
 {
   "name": "unofficial-etrade-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A node.js interface to the E*Trade API",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "babel src --out-dir build",
+    "prepublishOnly": "npm run build",
     "test": "tap --node-arg=-r --node-arg=@babel/register tests/*.js",
     "test-some": "tap --node-arg=-r --node-arg=@babel/register",
     "cover": "nyc --reporter=lcov npm test",
