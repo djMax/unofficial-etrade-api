@@ -1,28 +1,35 @@
 {
-  "name": "quotes",
+  "name": "unofficial-etrade-api",
   "version": "1.0.0",
-  "description": "Quotes from the E*Trade API",
+  "description": "A node.js interface to the E*Trade API",
   "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir build",
     "test": "tap --node-arg=-r --node-arg=@babel/register tests/*.js",
     "test-some": "tap --node-arg=-r --node-arg=@babel/register",
     "cover": "nyc --reporter=lcov npm test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "start-auth": "node ./build/start-auth.js"
   },
+  "bin": "build/server.js",
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
     "oauth-1.0a": "^2.2.6",
+    "oauth-sign": "^0.9.0",
     "opn": "^6.0.0",
     "superagent": "^5.2.2",
-    "superagent-debugger": "^1.2.9"
+    "superagent-debugger": "^1.2.9",
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.7",
-    "@babel/register": "^7.7.7",
-    "babel-preset-gasbuddy": "^5.6.1",
+    "@babel/register": "^7.9.0",
+    "babel-preset-gasbuddy": "^6.0.0",
     "eslint-config-gasbuddy": "^5.3.0",
-    "tap": "^14.10.5"
+    "tap": "^14.10.7"
   }
 }

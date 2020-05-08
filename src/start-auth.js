@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+/* eslint-disable no-console */
 import fs from 'fs';
 import opn from 'opn';
 import readline from 'readline';
@@ -20,7 +22,7 @@ etrade.getAuthInfo()
     });
   })
   .then(([tokenInfo, code]) => etrade.getAccessToken(tokenInfo, code))
-  .then(({ body: authInfo }) => {
+  .then((authInfo) => {
     fs.writeFileSync('./.keys.json', JSON.stringify(authInfo, null, '\t'));
     console.log('Wrote keys to .keys.json');
     rl.close();

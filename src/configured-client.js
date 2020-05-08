@@ -1,5 +1,6 @@
 import fs from 'fs';
 import crypto from 'crypto';
+import qs from 'querystring';
 import OAuth from 'oauth-1.0a';
 import request from 'superagent';
 
@@ -7,7 +8,7 @@ const SECRETS = Symbol('eTrade client secrets');
 
 export class EtradeClient {
   constructor(config) {
-    const { clientId, clientSecret, accessToken, accessTokenSecret } = config;
+    const { clientId, clientSecret, accessToken, accessTokenSecret, isProduction, webSecret } = config;
     this.oauth = OAuth({
       consumer: { key: clientId, secret: clientSecret },
       signature_method: 'HMAC-SHA1',
@@ -15,6 +16,9 @@ export class EtradeClient {
         return crypto.createHmac('sha1', signingKey).update(baseString).digest('base64');
       },
     });
+    this.uniqueId = crypto.createHash('sha256').update(clientId).digest('base64');
+    this.isProduction = isProduction;
+    this.webSecret = webSecret;
     this[SECRETS] = { clientId, accessToken, accessTokenSecret };
     if (accessToken) {
       this.authorized = true;
@@ -52,30 +56,44 @@ export class EtradeClient {
       },
     };
     const tokenQuery = this.oauth.authorize(accessRequest, { key: tokenInfo.token, secret: tokenInfo.secret });
-    return request.get(accessRequest.url).query(tokenQuery);
+    return request.get(accessRequest.url).query(tokenQuery)
+      .then(response => response.body);
   }
 
   authenticatedRequest(method, path, query) {
+    const host = this.isProduction ? 'api' : 'apisb';
     const r = {
       method: method.toUpperCase(),
-      url: `https://apisb.etrade.com${path}`,
+      url: `https://${host}.etrade.com${path}`,
     };
     if (query) {
       r.data = query;
     }
     const oauthQuery = this.oauth.authorize(r, { key: this[SECRETS].accessToken, secret: this[SECRETS].accessTokenSecret });
-    console.error("QUERY", oauthQuery, "URL", r);
     return request[method.toLowerCase()](r.url).set(this.oauth.toHeader(oauthQuery));
+  }
+
+  optionsChain(symbol, options) {
+    const query = qs.stringify({ ...options, symbol });
+    return this.authenticatedRequest('get', `/v1/market/optionchains.json?${query}`)
+      .then(r => r.body?.OptionChainResponse);
+  }
+
+  quote(symbol) {
+    return this
+      .authenticatedRequest('get', `/v1/market/quote/${symbol}.json`)
+      .then(r => r.body?.QuoteResponse?.QuoteData);
   }
 
   static fromEnvironment() {
     let keys = {};
     try {
       const {
+        web_secret: webSecret,
         oauth_token: accessToken,
         oauth_token_secret: accessTokenSecret,
       } = JSON.parse(fs.readFileSync('./.keys.json', 'utf8'));
-      keys = { accessToken, accessTokenSecret };
+      keys = { accessToken, accessTokenSecret, webSecret };
     } catch (error) {
       // Nothing to do
     }
@@ -83,6 +101,7 @@ export class EtradeClient {
       ...keys,
       clientId: process.env.ETRADE_KEY,
       clientSecret: process.env.ETRADE_SECRET,
+      isProduction: process.env.ETRADE_ENV === 'production',
     });
   }
 }

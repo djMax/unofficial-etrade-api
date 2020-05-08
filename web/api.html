@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.json-viewer@1.4.0/json-viewer/jquery.json-viewer.css" integrity="sha256-rXfxviikI1RGZM3px6piq9ZL0YZuO5ETcO8+toY+DDY=" crossorigin="anonymous">
+  <title>E*Trade API</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="jumbotron" style="max-width: 676px; margin: auto; margin-top: 30px">
+      <h1>E*Trade API Proxy</h1>
+
+      <p>
+        This site is primarily intended to be used via API, but
+        this page lets you see raw results of some calls. Note the
+        "key=" in the query string of the URL above. This is used to provide
+        some protection from accidentally making an open quote server on the Internet.
+      </p>
+
+      <div class="input-group mb-3">
+        <input type="text" id="symbol" class="form-control" placeholder="Enter symbol, e.g. MSFT" aria-label="Stock Symbol" aria-describedby="button-addon2">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" id="getQuote">Get Quote</button>
+          <button class="btn btn-outline-secondary" type="button" id="getOptions">Option Chain</button>
+        </div>
+      </div>
+
+      <pre id="json-renderer"></pre>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"
+      integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.json-viewer@1.4.0/json-viewer/jquery.json-viewer.js"
+      integrity="sha256-klSHtWPkZv4zG4darvDEpAQ9hJFDqNbQrM+xDChm8Fo="
+      crossorigin="anonymous"></script>
+    <script type="text/javascript">
+    $('#getQuote').click(function () {
+      $.ajax({
+        url: '/quote' + window.location.search + '&symbol=' + $('#symbol').val(),
+        dataType: 'json',
+        success: function (data) {
+          $('#json-renderer').jsonViewer(data);
+        },
+      });
+    });
+
+    $('#getOptions').click(function () {
+      $.ajax({
+        url: '/options' + window.location.search + '&symbol=' + $('#symbol').val(),
+        dataType: 'json',
+        success: function (data) {
+          $('#json-renderer').jsonViewer(data);
+        },
+      });
+    });
+  </script>
+</body>
+
+</html>
