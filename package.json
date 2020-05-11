@@ -1,6 +1,6 @@
 {
   "name": "unofficial-etrade-api",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A node.js interface to the E*Trade API",
   "main": "build/index.js",
   "scripts": {

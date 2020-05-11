@@ -56,7 +56,24 @@ export class EtradeClient {
       },
     };
     const tokenQuery = this.oauth.authorize(accessRequest, { key: tokenInfo.token, secret: tokenInfo.secret });
-    return request.get(accessRequest.url).query(tokenQuery)
+    const tokens = await request.get(accessRequest.url).query(tokenQuery)
+      .then(response => response.body);
+    this[SECRETS].accessToken = tokens.oauth_token;
+    this[SECRETS].accessTokenSecret = tokens.oauth_token_secret;
+    return tokens;
+  }
+
+  async renewAccessToken() {
+    const authInfo = await this.getAuthInfo();
+    const refreshRequest = {
+      url: 'https://api.etrade.com/oauth/renew_access_token',
+      method: 'get',
+      data: {
+        oauth_token: this[SECRETS].accessToken,
+      },
+    };
+    const tokenQuery = this.oauth.authorize(refreshRequest, { key: authInfo.token, secret: authInfo.secret });
+    return request.get(refreshRequest.url).query(tokenQuery)
       .then(response => response.body);
   }
 
